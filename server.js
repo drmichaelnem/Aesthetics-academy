@@ -11,6 +11,8 @@ app.get('/', (req, res) => {
   res.send('Aesthetics Academy message bot is running.');
 });
 
+app.use(express.static('public'));
+
 app.use('/webhook/instagram', instagramWebhook);
 app.use('/webhook/whatsapp', whatsappWebhook);
 
