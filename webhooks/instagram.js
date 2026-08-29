@@ -30,7 +30,7 @@ router.post('/', async (req, res) => {
       if (event.message && !event.message.is_echo) {
         const senderId = event.sender.id;
         const text = event.message.text;
-        const reply = matchReply(text);
+        const reply = matchReply(text, senderId);
         if (reply) {
           try {
             await sendInstagramMessage(senderId, reply);
