@@ -9,6 +9,13 @@ router.get('/', (req, res) => {
   const token = req.query['hub.verify_token'];
   const challenge = req.query['hub.challenge'];
 
+  console.log('IG webhook verification attempt:', {
+    mode,
+    tokenReceived: token,
+    tokenExpected: process.env.IG_VERIFY_TOKEN,
+    match: token === process.env.IG_VERIFY_TOKEN,
+  });
+
   if (mode === 'subscribe' && token === process.env.IG_VERIFY_TOKEN) {
     return res.status(200).send(challenge);
   }
