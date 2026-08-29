@@ -27,7 +27,8 @@ router.post('/', async (req, res) => {
   for (const entry of entries) {
     const messagingEvents = entry.messaging || [];
     for (const event of messagingEvents) {
-      if (event.message && !event.message.is_echo) {
+      const isStoryReply = event.message && event.message.reply_to && event.message.reply_to.story;
+      if (event.message && !event.message.is_echo && !isStoryReply) {
         const senderId = event.sender.id;
         const text = event.message.text;
         const reply = matchReply(text, senderId);
