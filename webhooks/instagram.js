@@ -1,6 +1,7 @@
 const express = require('express');
 const { matchReply } = require('../lib/replyEngine');
 const { sendInstagramMessage } = require('../lib/instagramApi');
+const { extractPhoneNumber } = require('../lib/phoneDetector');
 
 const router = express.Router();
 
@@ -31,6 +32,13 @@ router.post('/', async (req, res) => {
       if (event.message && !event.message.is_echo && !isStoryReply) {
         const senderId = event.sender.id;
         const text = event.message.text;
+
+        const phoneNumber = extractPhoneNumber(text);
+        if (phoneNumber) {
+          // TODO: once WhatsApp is connected, send a staff alert here instead of just logging.
+          console.log(`Phone number left by Instagram sender ${senderId}: ${phoneNumber}`);
+        }
+
         const reply = matchReply(text, senderId);
         if (reply) {
           try {
