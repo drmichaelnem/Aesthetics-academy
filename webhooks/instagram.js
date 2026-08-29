@@ -11,8 +11,6 @@ router.get('/', (req, res) => {
 
   console.log('IG webhook verification attempt:', {
     mode,
-    tokenReceived: token,
-    tokenExpected: process.env.IG_VERIFY_TOKEN,
     match: token === process.env.IG_VERIFY_TOKEN,
   });
 
