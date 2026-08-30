@@ -44,6 +44,7 @@ async function handleMessagingEvent(event) {
   if (phoneNumber) {
     // TODO: once WhatsApp is connected, send a staff alert here instead of just logging.
     console.log(`Phone number left by Instagram sender ${senderId}: ${phoneNumber}`);
+    return;
   }
 
   const reply = matchReply(text, senderId);
