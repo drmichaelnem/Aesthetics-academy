@@ -23,7 +23,8 @@ router.get('/', (req, res) => {
 
 async function handleMessagingEvent(event) {
   const isStoryReply = event.message && event.message.reply_to && event.message.reply_to.story;
-  if (!event.message || event.message.is_echo || isStoryReply) return;
+  const hasAttachment = event.message && event.message.attachments && event.message.attachments.length > 0;
+  if (!event.message || event.message.is_echo || isStoryReply || hasAttachment) return;
 
   const senderId = event.sender.id;
   const text = event.message.text;
