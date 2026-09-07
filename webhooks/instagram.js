@@ -1,6 +1,7 @@
 const express = require('express');
-const { matchReply, matchCommentReply } = require('../lib/replyEngine');
+const { matchReply, matchCommentReply, detectTreatmentTopic } = require('../lib/replyEngine');
 const { sendInstagramMessage, sendPrivateReply, getMediaCaption } = require('../lib/instagramApi');
+const { sendLeadAlert } = require('../lib/whatsappApi');
 const { extractPhoneNumber } = require('../lib/phoneDetector');
 const { markManualHandoff, isManualHandoff } = require('../lib/conversationState');
 
@@ -42,8 +43,12 @@ async function handleMessagingEvent(event) {
 
   const phoneNumber = extractPhoneNumber(text);
   if (phoneNumber) {
-    // TODO: once WhatsApp is connected, send a staff alert here instead of just logging.
-    console.log(`Phone number left by Instagram sender ${senderId}: ${phoneNumber}`);
+    const topic = detectTreatmentTopic(text) || 'פנייה כללית';
+    try {
+      await sendLeadAlert(phoneNumber, topic);
+    } catch (err) {
+      console.error('Failed to send WhatsApp lead alert:', err.message);
+    }
     return;
   }
 
