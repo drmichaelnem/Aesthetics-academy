@@ -1,6 +1,11 @@
 const express = require('express');
 const { matchReply, matchCommentReply, detectTreatmentTopic } = require('../lib/replyEngine');
-const { sendInstagramMessage, sendPrivateReply, getMediaCaption } = require('../lib/instagramApi');
+const {
+  sendInstagramMessage,
+  sendPrivateReply,
+  getMediaCaption,
+  getUserProfileName,
+} = require('../lib/instagramApi');
 const { sendLeadAlert } = require('../lib/whatsappApi');
 const { extractPhoneNumber } = require('../lib/phoneDetector');
 const { markManualHandoff, isManualHandoff } = require('../lib/conversationState');
@@ -44,8 +49,16 @@ async function handleMessagingEvent(event) {
   const phoneNumber = extractPhoneNumber(text);
   if (phoneNumber) {
     const topic = detectTreatmentTopic(text) || 'פנייה כללית';
+
+    let instagramName = null;
     try {
-      await sendLeadAlert(phoneNumber, topic);
+      instagramName = await getUserProfileName(senderId);
+    } catch (err) {
+      console.error('Failed to fetch Instagram profile name:', err.message);
+    }
+
+    try {
+      await sendLeadAlert(phoneNumber, topic, instagramName);
     } catch (err) {
       console.error('Failed to send WhatsApp lead alert:', err.message);
     }
