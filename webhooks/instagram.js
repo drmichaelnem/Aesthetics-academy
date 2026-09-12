@@ -8,7 +8,7 @@ const {
 } = require('../lib/instagramApi');
 const { sendLeadAlert } = require('../lib/whatsappApi');
 const { extractPhoneNumber } = require('../lib/phoneDetector');
-const { markManualHandoff, isManualHandoff } = require('../lib/conversationState');
+const { markManualHandoff, isManualHandoff, getLastTopic } = require('../lib/conversationState');
 
 const router = express.Router();
 
@@ -48,7 +48,7 @@ async function handleMessagingEvent(event) {
 
   const phoneNumber = extractPhoneNumber(text);
   if (phoneNumber) {
-    const topic = detectTreatmentTopic(text) || 'פנייה כללית';
+    const topic = detectTreatmentTopic(text) || getLastTopic(senderId) || 'פנייה כללית';
 
     let instagramName = null;
     try {
