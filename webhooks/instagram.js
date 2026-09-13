@@ -62,6 +62,12 @@ async function handleMessagingEvent(event) {
     } catch (err) {
       console.error('Failed to send WhatsApp lead alert:', err.message);
     }
+
+    try {
+      await sendInstagramMessage(senderId, 'קיבלתי 🙂\nנציגה שלנו תחזור אליך בהקדם האפשרי');
+    } catch (err) {
+      console.error('Failed to send phone-number confirmation reply:', err.message);
+    }
     return;
   }
 
