@@ -1,11 +1,6 @@
 const express = require('express');
 const { matchReply, matchCommentReply, detectTreatmentTopic } = require('../lib/replyEngine');
-const {
-  sendInstagramMessage,
-  sendPrivateReply,
-  getMediaCaption,
-  getUserProfileName,
-} = require('../lib/instagramApi');
+const { sendInstagramMessage, sendPrivateReply, getUserProfileName } = require('../lib/instagramApi');
 const { sendLeadAlert } = require('../lib/whatsappApi');
 const { extractPhoneNumber } = require('../lib/phoneDetector');
 const { markManualHandoff, isManualHandoff, getLastTopic } = require('../lib/conversationState');
@@ -89,18 +84,8 @@ async function handleCommentChange(change) {
 
   const commenterId = comment.from && comment.from.id;
   const commentText = comment.text;
-  const mediaId = comment.media && comment.media.id;
 
-  let captionText = null;
-  if (mediaId) {
-    try {
-      captionText = await getMediaCaption(mediaId);
-    } catch (err) {
-      console.error('Failed to fetch media caption:', err.message);
-    }
-  }
-
-  const reply = matchCommentReply(commentText, captionText, commenterId);
+  const reply = matchCommentReply(commentText, commenterId);
   if (reply) {
     try {
       await sendPrivateReply(comment.id, reply);
