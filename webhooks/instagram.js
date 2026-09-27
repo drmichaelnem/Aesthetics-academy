@@ -7,6 +7,9 @@ const { markManualHandoff, isManualHandoff, getLastTopic } = require('../lib/con
 
 const router = express.Router();
 
+// Auto-replies to post/reel comments are paused until re-enabled.
+const COMMENT_AUTO_REPLIES_ENABLED = false;
+
 router.get('/', (req, res) => {
   const mode = req.query['hub.mode'];
   const token = req.query['hub.verify_token'];
@@ -105,7 +108,7 @@ router.post('/', async (req, res) => {
     }
 
     for (const change of entry.changes || []) {
-      if (change.field === 'comments') {
+      if (COMMENT_AUTO_REPLIES_ENABLED && change.field === 'comments') {
         await handleCommentChange(change);
       }
     }
