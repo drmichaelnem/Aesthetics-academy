@@ -27,20 +27,10 @@ async function handleMessagingEvent(event) {
   if (!event.message || event.message.is_echo) return;
 
   const senderId = event.sender.id;
-
-  const isStoryReply = event.message.reply_to && event.message.reply_to.story;
-  const hasAttachment = event.message.attachments && event.message.attachments.length > 0;
-  if (isStoryReply || hasAttachment) {
-    // A shared post/reel or a story reply gives us no reliable context to answer
-    // from, so hand this whole conversation off to a human from here on.
-    markManualHandoff(senderId);
-    return;
-  }
-
-  if (isManualHandoff(senderId)) return;
-
   const text = event.message.text;
 
+  // A phone number is a lead, so it is always handled - even after the
+  // conversation was handed off to a human (e.g. the sender sent a photo first).
   const phoneNumber = extractPhoneNumber(text);
   if (phoneNumber) {
     const topic = detectTreatmentTopic(text) || getLastTopic(senderId) || 'פנייה כללית';
@@ -65,6 +55,17 @@ async function handleMessagingEvent(event) {
     }
     return;
   }
+
+  const isStoryReply = event.message.reply_to && event.message.reply_to.story;
+  const hasAttachment = event.message.attachments && event.message.attachments.length > 0;
+  if (isStoryReply || hasAttachment) {
+    // A shared post/reel or a story reply gives us no reliable context to answer
+    // from, so hand this whole conversation off to a human from here on.
+    markManualHandoff(senderId);
+    return;
+  }
+
+  if (isManualHandoff(senderId)) return;
 
   const reply = matchReply(text, senderId);
   if (reply) {
