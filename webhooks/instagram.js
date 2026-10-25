@@ -1,6 +1,11 @@
 const express = require('express');
 const { matchReply, matchCommentReply, detectTreatmentTopic } = require('../lib/replyEngine');
-const { sendInstagramMessage, sendPrivateReply, getUserProfileName } = require('../lib/instagramApi');
+const {
+  sendInstagramMessage,
+  sendPrivateReply,
+  getUserProfileName,
+  hasEarlierBusinessMessage,
+} = require('../lib/instagramApi');
 const { sendLeadAlert } = require('../lib/whatsappApi');
 const { extractPhoneNumber } = require('../lib/phoneDetector');
 const {
@@ -9,6 +14,8 @@ const {
   getLastTopic,
   markHumanTakeover,
   isHumanTakeover,
+  isKnown,
+  markHistoryChecked,
   recordBotMessage,
   consumeBotMessage,
 } = require('../lib/conversationState');
@@ -39,6 +46,22 @@ async function replyToSender(senderId, text) {
   await sendInstagramMessage(senderId, text);
 }
 
+// The bot only answers conversations it has followed from the start. A sender it
+// doesn't know yet (e.g. after a server restart) may be mid-conversation with the
+// team, so check the conversation history once before replying.
+async function checkOngoingConversation(senderId) {
+  if (isKnown(senderId)) return;
+  try {
+    if (await hasEarlierBusinessMessage(senderId)) {
+      markHumanTakeover(senderId);
+      return;
+    }
+  } catch (err) {
+    console.error('Failed to read Instagram conversation history:', err.message);
+  }
+  markHistoryChecked(senderId);
+}
+
 async function handleMessagingEvent(event) {
   if (!event.message) return;
 
@@ -54,6 +77,8 @@ async function handleMessagingEvent(event) {
 
   const senderId = event.sender.id;
   const text = event.message.text;
+
+  await checkOngoingConversation(senderId);
 
   // A phone number is a lead, so the alert always goes out - even after the
   // conversation was handed off to a human (e.g. the sender sent a photo first).
