@@ -30,6 +30,8 @@ npm start
 | `WA_VERIFY_TOKEN` | מחרוזת אקראית שאתם בוחרים, לוואטסאפ |
 | `WA_ACCESS_TOKEN` | טוקן הגישה לוואטסאפ Business Platform |
 | `WA_PHONE_NUMBER_ID` | מזהה מספר הטלפון העסקי בוואטסאפ |
+| `RENDER_API_KEY` | מפתח API של Render (Account Settings ← API Keys). הבוט מחדש את טוקן האינסטגרם פעם ביום ושומר אותו כאן, כדי שלא יפוג אחרי 60 יום |
+| `RENDER_SERVICE_ID` | מזהה השירות ב-Render (`srv-...`) |
 
 ## פריסה (Deployment)
 
