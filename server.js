@@ -3,6 +3,7 @@ const express = require('express');
 
 const instagramWebhook = require('./webhooks/instagram');
 const whatsappWebhook = require('./webhooks/whatsapp');
+const { startInstagramTokenRefresher } = require('./lib/instagramTokenRefresher');
 
 const app = express();
 app.use(express.json());
@@ -19,4 +20,5 @@ app.use('/webhook/whatsapp', whatsappWebhook);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
+  startInstagramTokenRefresher();
 });
