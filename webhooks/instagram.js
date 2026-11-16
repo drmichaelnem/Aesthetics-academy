@@ -13,7 +13,6 @@ const {
   isManualHandoff,
   getLastTopic,
   markHumanTakeover,
-  isHumanTakeover,
   isKnown,
   markHistoryChecked,
   recordBotMessage,
@@ -80,9 +79,9 @@ async function handleMessagingEvent(event) {
 
   await checkOngoingConversation(senderId);
 
-  // A phone number is a lead, so the alert always goes out - even after the
-  // conversation was handed off to a human (e.g. the sender sent a photo first).
-  // Once a team member is answering by hand, the bot doesn't reply at all.
+  // A phone number is a lead: the alert and the "received" confirmation always go
+  // out - even after the conversation was handed off to a human (a team member
+  // answering by hand, or the sender sent a photo first).
   const phoneNumber = extractPhoneNumber(text);
   if (phoneNumber) {
     const topic = detectTreatmentTopic(text) || getLastTopic(senderId) || 'פנייה כללית';
@@ -99,8 +98,6 @@ async function handleMessagingEvent(event) {
     } catch (err) {
       console.error('Failed to send WhatsApp lead alert:', err.message);
     }
-
-    if (isHumanTakeover(senderId)) return;
 
     try {
       await replyToSender(senderId, 'קיבלתי 🙂\nנציגה שלנו תחזור אליך בהקדם האפשרי');
